@@ -12,6 +12,7 @@ This discord bot is for analyzing the sentiment of tweets on Twitter.
 - Pandas - https://pypi.org/project/pandas/#description
 - Matplotlib - https://matplotlib.org/stable/index.html
 - Objectivity vs Subjectivity - https://www.youtube.com/watch?v=4O45mRHMzpw
+- Twitter Bots Accounts Dataset - https://www.kaggle.com/datasets/davidmartngutirrez/twitter-bots-accounts
 
 # Examples
 ## Example 1
