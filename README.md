@@ -2,6 +2,7 @@
 This discord bot is for analyzing the sentiment of tweets on Twitter.
 
 # Helpful Links
+- (Cheatsheet for creating this lol) - https://markdown.land/markdown-cheat-sheet
 - GeeksForGeeks - https://www.geeksforgeeks.org/
 - Amazon Fine Food Reviews Dataset - https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews?select=Reviews.csv
 - Pandas - https://pypi.org/project/pandas/#description
