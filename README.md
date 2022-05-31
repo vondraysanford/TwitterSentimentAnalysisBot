@@ -1,6 +1,10 @@
 # Twitter Sentiment Analysis Bot
 This discord bot is for analyzing the sentiment of tweets on Twitter.
 
+# Next Steps:
+1. Implement Bot Detection
+2. Implement Discord.py
+
 # Helpful Links
 - (Cheatsheet for creating this lol) - https://markdown.land/markdown-cheat-sheet
 - GeeksForGeeks - https://www.geeksforgeeks.org/
