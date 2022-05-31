@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import json
+import csv
 import ast
 import yaml
 
@@ -26,18 +27,35 @@ def twitter_auth_and_connect(bearer_token, url):
     response = requests.request("GET", url, headers=headers)
     return response.json()
 
-def no_tweets(res_json):
-    if res_json == {"meta": {"result_count": 0}}:
-        print("The Twitter handle entered hasn't Tweeted in 7 days.")
+def create_document_format(res_json):
+    data_only = res_json["data"]
+    doc_start = '"documents": {}'.format(data_only)
+    str_json = "{" + doc_start + "}"
+    dump_doc = json.dumps(str_json)
+    doc = json.loads(dump_doc)
+    return ast.literal_eval(doc)
+
+def convert_json_to_csv(res_json):
+    data_file = open('data_file.csv', 'w')
+    csv_writer = csv.writer(data_file)
+    
+    count = 0
+    for emp in res_json['data']:
+        if count == 0:
+            header = emp.keys()
+            csv_writer.writerow(header)
+            count += 1
+        emp['text'] = emp['text'].replace("\n", " ")
+        csv_writer.writerow(emp.values())
+    
+    data_file.close()
 
 def main():
     url = create_twitter_url()
     data = process_yaml()
     bearer_token = create_bearer_token(data)
     res_json = twitter_auth_and_connect(bearer_token, url)
-
-    with open("sample.json", "w") as outfile:
-        json.dump(res_json, outfile)
+    convert_json_to_csv(res_json)
 
 if __name__ == "__main__":
     main()
