@@ -1,24 +1,39 @@
 # Twitter Sentiment Analysis Bot
-This bot is for analyzing the sentiment of tweets on Twitter.
+This discord bot is for analyzing the sentiment of tweets on Twitter.
 
 # Helpful Links
-- A Beginner’s Guide to Sentiment Analysis with Python - https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
 - GeeksForGeeks - https://www.geeksforgeeks.org/
 - Amazon Fine Food Reviews Dataset - https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews?select=Reviews.csv
-- Natural Language Toolkit - https://www.nltk.org/
-- Plotly - https://plotly.com/python/getting-started/
-- Seaborn - https://seaborn.pydata.org/
 - Pandas - https://pypi.org/project/pandas/#description
+- Matplotlib - https://matplotlib.org/stable/index.html
+- Objectivity vs Subjectivity - https://www.youtube.com/watch?v=4O45mRHMzpw
+
+# Examples
+1. (DO THIS ONE) How to analyze the sentiment of your own Tweets -> https://developer.twitter.com/en/docs/tutorials/how-to-analyze-the-sentiment-of-your-own-tweets
+## Relevant Documentation
+- Determining Tweet types -> https://developer.twitter.com/en/docs/tutorials/determining-tweet-types
 - Yaml - https://pyyaml.org/
 
-## Pick one:
+1. A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
+## Relevant Documentation
+- Seaborn - https://seaborn.pydata.org/
+- Plotly - https://plotly.com/python/getting-started/
+- Natural Language Toolkit - https://www.nltk.org/
+- Wordcloud - https://github.com/amueller/word_cloud
+- NumPy - https://numpy.org/
 - Scikit-learn - https://scikit-learn.org/stable/index.html
+
+1. Sentiment Analysis using Python -> https://techvidvan.com/tutorials/python-sentiment-analysis/
+## Relevant Documentation
 - Tensorflow - https://www.tensorflow.org/
+
+1. Twitter Sentiment Analysis & Botometer (Part 2) -> https://medium.com/analytics-vidhya/twitter-sentiment-analysis-botometer-part-2-aecdbbbada30
+## Relevant Documentation
+- Tweepy - https://docs.tweepy.org/en/latest/index.html
+- Tweepy Help - https://dev.to/twitterdev/a-comprehensive-guide-for-using-the-twitter-api-v2-using-tweepy-in-python-15d9
+- Text Blob - https://textblob.readthedocs.io/en/dev/
 
 # Steps
 1. Make a Twitter Account -> https://twitter.com/i/flow/signup
 1. Create a Twitter Bot -> https://developer.twitter.com/en
 1. Take Keys And Integrate With Tutorials -> https://developer.twitter.com/en/docs/tutorials?filter=/product/twitter-api
-## Examples
-1.  Determining Tweet types -> https://developer.twitter.com/en/docs/tutorials/determining-tweet-types
-1. (DO THIS ONE) How to analyze the sentiment of your own Tweets -> https://developer.twitter.com/en/docs/tutorials/how-to-analyze-the-sentiment-of-your-own-tweets
