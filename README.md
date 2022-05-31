@@ -9,13 +9,15 @@ This discord bot is for analyzing the sentiment of tweets on Twitter.
 - Objectivity vs Subjectivity - https://www.youtube.com/watch?v=4O45mRHMzpw
 
 # Examples
-1. (DO THIS ONE) How to analyze the sentiment of your own Tweets -> https://developer.twitter.com/en/docs/tutorials/how-to-analyze-the-sentiment-of-your-own-tweets
-## Relevant Documentation
+## Example 1
+**How to analyze the sentiment of your own Tweets** -> https://developer.twitter.com/en/docs/tutorials/how-to-analyze-the-sentiment-of-your-own-tweets
+### Relevant Documentation
 - Determining Tweet types -> https://developer.twitter.com/en/docs/tutorials/determining-tweet-types
 - Yaml - https://pyyaml.org/
 
-1. A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
-## Relevant Documentation
+## Example 2
+**A Beginner’s Guide to Sentiment Analysis with Python** -> https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
+### Relevant Documentation
 - Seaborn - https://seaborn.pydata.org/
 - Plotly - https://plotly.com/python/getting-started/
 - Natural Language Toolkit - https://www.nltk.org/
@@ -23,12 +25,14 @@ This discord bot is for analyzing the sentiment of tweets on Twitter.
 - NumPy - https://numpy.org/
 - Scikit-learn - https://scikit-learn.org/stable/index.html
 
-1. Sentiment Analysis using Python -> https://techvidvan.com/tutorials/python-sentiment-analysis/
-## Relevant Documentation
+## Example 3
+3. **Sentiment Analysis using Python** -> https://techvidvan.com/tutorials/python-sentiment-analysis/
+### Relevant Documentation
 - Tensorflow - https://www.tensorflow.org/
 
-1. Twitter Sentiment Analysis & Botometer (Part 2) -> https://medium.com/analytics-vidhya/twitter-sentiment-analysis-botometer-part-2-aecdbbbada30
-## Relevant Documentation
+## Example 4
+4. **(DO THIS ONE) Twitter Sentiment Analysis & Botometer (Part 2)** -> https://medium.com/analytics-vidhya/twitter-sentiment-analysis-botometer-part-2-aecdbbbada30
+### Relevant Documentation
 - Tweepy - https://docs.tweepy.org/en/latest/index.html
 - Tweepy Help - https://dev.to/twitterdev/a-comprehensive-guide-for-using-the-twitter-api-v2-using-tweepy-in-python-15d9
 - Text Blob - https://textblob.readthedocs.io/en/dev/
