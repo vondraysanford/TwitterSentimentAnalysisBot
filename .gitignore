@@ -2,3 +2,5 @@ Config.yaml
 Reviews.csv
 .DS_Store
 data_file.csv
+twitter_human_bots_dataset.csv
+twitter_dataset_expanded.csv
