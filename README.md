@@ -52,4 +52,5 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 # Steps
 1. Make a Twitter Account -> https://twitter.com/i/flow/signup
 1. Create a Twitter Bot -> https://developer.twitter.com/en
+1. Create a Postman Account For API Testing -> https://identity.getpostman.com/signup
 1. Take Keys And Integrate With Tutorials -> https://developer.twitter.com/en/docs/tutorials?filter=/product/twitter-api
