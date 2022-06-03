@@ -9,39 +9,45 @@ This discord bot is for analyzing the sentiment of tweets on Twitter.
 - (Cheatsheet for creating this lol) - https://markdown.land/markdown-cheat-sheet
 - GeeksForGeeks - https://www.geeksforgeeks.org/
 - Amazon Fine Food Reviews Dataset - https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews?select=Reviews.csv
-- Pandas - https://pypi.org/project/pandas/#description
+- pandas - https://pypi.org/project/pandas/#description
 - Matplotlib - https://matplotlib.org/stable/index.html
 - Objectivity vs Subjectivity - https://www.youtube.com/watch?v=4O45mRHMzpw
 - Twitter Bots Accounts Dataset - https://www.kaggle.com/datasets/davidmartngutirrez/twitter-bots-accounts
+- pytz - https://pythonhosted.org/pytz/
 
 # Examples
 ## Example 1
-**How to analyze the sentiment of your own Tweets** -> https://developer.twitter.com/en/docs/tutorials/how-to-analyze-the-sentiment-of-your-own-tweets
+How to analyze the sentiment of your own Tweets -> https://developer.twitter.com/en/docs/tutorials/how-to-analyze-the-sentiment-of-your-own-tweets
 ### Relevant Documentation
 - Determining Tweet types -> https://developer.twitter.com/en/docs/tutorials/determining-tweet-types
-- Yaml - https://pyyaml.org/
+- yaml - https://pyyaml.org/
 
 ## Example 2
-**A Beginner’s Guide to Sentiment Analysis with Python** -> https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
+A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
 ### Relevant Documentation
-- Seaborn - https://seaborn.pydata.org/
+- seaborn - https://seaborn.pydata.org/
 - Plotly - https://plotly.com/python/getting-started/
-- Natural Language Toolkit - https://www.nltk.org/
-- Wordcloud - https://github.com/amueller/word_cloud
+- NLTK - https://www.nltk.org/
+- word_cloud - https://github.com/amueller/word_cloud
 - NumPy - https://numpy.org/
 - Scikit-learn - https://scikit-learn.org/stable/index.html
 
 ## Example 3
-3. **Sentiment Analysis using Python** -> https://techvidvan.com/tutorials/python-sentiment-analysis/
+3. Sentiment Analysis using Python -> https://techvidvan.com/tutorials/python-sentiment-analysis/
 ### Relevant Documentation
-- Tensorflow - https://www.tensorflow.org/
+- TensorFlow - https://www.tensorflow.org/
 
 ## Example 4
-4. **(DO THIS ONE) Twitter Sentiment Analysis & Botometer (Part 2)** -> https://medium.com/analytics-vidhya/twitter-sentiment-analysis-botometer-part-2-aecdbbbada30
+4. (DO THIS ONE) Twitter Sentiment Analysis & Botometer (Part 2) -> https://medium.com/analytics-vidhya/twitter-sentiment-analysis-botometer-part-2-aecdbbbada30
 ### Relevant Documentation
 - Tweepy - https://docs.tweepy.org/en/latest/index.html
 - Tweepy Help - https://dev.to/twitterdev/a-comprehensive-guide-for-using-the-twitter-api-v2-using-tweepy-in-python-15d9
 - Text Blob - https://textblob.readthedocs.io/en/dev/
+
+## Example 5
+5. Twitter Bot or Not -> https://scrapfishies.medium.com/twitter-bot-or-not-cc2ad52b36ba
+### Relevant Documentation
+- XGBoost - https://xgboost.readthedocs.io/en/stable/index.html
 
 # Steps
 1. Make a Twitter Account -> https://twitter.com/i/flow/signup
