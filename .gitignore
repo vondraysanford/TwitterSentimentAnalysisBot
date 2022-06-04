@@ -4,3 +4,4 @@ Reviews.csv
 data_file.csv
 twitter_human_bots_dataset.csv
 twitter_dataset_expanded.csv
+**/__pycache__
