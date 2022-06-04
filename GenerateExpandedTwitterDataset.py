@@ -26,7 +26,7 @@ now = datetime.datetime.utcnow()
 i = 0
 
 # Create .csv & write column headings
-fields = ['id','account_type','account_age_days','verified','profile_image_url','followers_count','following_count','tweet_count','average_tweets_per_day','hour_created','network', 'tweet_to_followers', 'follower_acq_rate', 'friends_acq_rate']
+fields = ['id','bot_status','created_at','account_age_days','verified','profile_image_url','followers_count','following_count','tweet_count','listed_count','average_tweets_per_day','hour_created','network', 'tweet_to_followers', 'follower_acq_rate', 'following_acq_rate', 'listed_acq_rate']
 filename = "twitter_dataset_expanded.csv"
 
 with open(filename, 'w') as csvfile: 
@@ -46,22 +46,26 @@ while i < raw_df.shape[0]:
     # Loop through Twitter users
     for user in users.data:
         if user.data is not None:
+
+            created_at = user.data['created_at']
             account_age_days = (datetime.datetime.utcnow().replace(tzinfo=pytz.UTC) - parser.parse(user.data['created_at'])).days
             verified = user.data['verified']
             profile_image_url = user.data['profile_image_url']
             followers_count = user.data['public_metrics']['followers_count']
             following_count = user.data['public_metrics']['following_count']
             tweet_count = user.data['public_metrics']['tweet_count']
+            listed_count = user.data['public_metrics']['listed_count'] # Number of public lists that this user is a member of.
             average_tweets_per_day = np.round(tweet_count / account_age_days, 3)
 
             hour_created = parser.parse(user.data['created_at']).hour
             network = np.round(np.log(1 + following_count)* np.log(1 + followers_count), 3)
             tweet_to_followers = np.round(np.log(1 + tweet_count) * np.log(1 + followers_count), 3)
             follower_acq_rate = np.round(np.log(1 + (followers_count / account_age_days)), 3)
-            friends_acq_rate = np.round(np.log(1 + (following_count / account_age_days)), 3)
+            following_acq_rate = np.round(np.log(1 + (following_count / account_age_days)), 3)
+            listed_acq_rate = np.round(np.log(1 + listed_count) * np.log(1 + tweet_count), 3)
 
             account_type = raw_df.loc[raw_df['id'] == int(user.data['id'])]
-            row = [user.data['id'], account_type.values[0][1], account_age_days, verified, profile_image_url, followers_count, following_count, tweet_count, average_tweets_per_day, hour_created, network, tweet_to_followers, follower_acq_rate, friends_acq_rate]
+            row = [user.data['id'], account_type.values[0][1], created_at, account_age_days, verified, profile_image_url, followers_count, following_count, tweet_count, listed_count, average_tweets_per_day, hour_created, network, tweet_to_followers, follower_acq_rate, following_acq_rate, listed_acq_rate]
 
             # Add expanded Twitter user to expanded .csv
             with open(filename, 'a') as csvfile: 
