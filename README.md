@@ -2,8 +2,9 @@
 This discord bot is for analyzing the sentiment of tweets on Twitter.
 
 # Next Steps:
-1. Implement Bot Detection
+1. Implement Bot Twitter Account Detection with Tweet Sentiment Analysis
 2. Implement Discord.py
+3. Implement slash commands with (Dislash) https://github.com/EQUENOS/dislash.py or full rewrite with (Disnake) https://docs.disnake.dev/en/latest/
 
 # Helpful Links
 - (Cheatsheet for creating this lol) - https://markdown.land/markdown-cheat-sheet
@@ -53,5 +54,8 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 # Steps
 1. Make a Twitter Account -> https://twitter.com/i/flow/signup
 1. Create a Twitter Bot -> https://developer.twitter.com/en
-1. Create a Postman Account For API Testing -> https://identity.getpostman.com/signup
-1. Take Keys And Integrate With Tutorials -> https://developer.twitter.com/en/docs/tutorials?filter=/product/twitter-api
+1. Create a Postman Account for API Testing -> https://identity.getpostman.com/signup
+1. Take keys and integrate with tutorials -> https://developer.twitter.com/en/docs/tutorials?filter=/product/twitter-api
+1. Once comfortable, view the examples in the **Examples** section, make sure you understand them.
+1. Run GenerateExpandedTwitterDataset.py **THEN ->** GenerateModel.ipynb
+1. Test TweetSentimentAnalysis.py & TwitterAccountBotAnalysis.py and combine processes.
