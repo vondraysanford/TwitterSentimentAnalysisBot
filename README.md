@@ -14,6 +14,9 @@ This discord bot is for analyzing the sentiment of tweets on Twitter.
 - Objectivity vs Subjectivity - https://www.youtube.com/watch?v=4O45mRHMzpw
 - Twitter Bots Accounts Dataset - https://www.kaggle.com/datasets/davidmartngutirrez/twitter-bots-accounts
 - pytz - https://pythonhosted.org/pytz/
+- seaborn - https://seaborn.pydata.org/
+- NumPy - https://numpy.org/
+
 
 # Examples
 ## Example 1
@@ -25,11 +28,9 @@ How to analyze the sentiment of your own Tweets -> https://developer.twitter.com
 ## Example 2
 A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatascience.com/a-beginners-guide-to-sentiment-analysis-in-python-95e354ea84f6
 ### Relevant Documentation
-- seaborn - https://seaborn.pydata.org/
 - Plotly - https://plotly.com/python/getting-started/
 - NLTK - https://www.nltk.org/
 - word_cloud - https://github.com/amueller/word_cloud
-- NumPy - https://numpy.org/
 - Scikit-learn - https://scikit-learn.org/stable/index.html
 
 ## Example 3
