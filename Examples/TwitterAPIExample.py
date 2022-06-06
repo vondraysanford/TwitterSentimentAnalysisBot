@@ -1,5 +1,4 @@
 import requests
-import pandas as pd
 import json
 import csv
 import ast
@@ -36,7 +35,7 @@ def create_document_format(res_json):
     return ast.literal_eval(doc)
 
 def convert_json_to_csv(res_json):
-    data_file = open('data_file.csv', 'w')
+    data_file = open('./Examples/data_file.csv', 'w')
     csv_writer = csv.writer(data_file)
     
     count = 0

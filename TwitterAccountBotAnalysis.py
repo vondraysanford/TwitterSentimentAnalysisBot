@@ -63,7 +63,7 @@ def get_bot_probability(user_features, xgb_model):
         return 'User not found'
     else:
         user = np.matrix(user_features)
-        bot_probability = np.round(xgb_model.predict_proba(user)[:, 1][0]*100, 2) # Unicode-9 is not supported.
+        bot_probability = np.round(xgb_model.predict_proba(user)[:, 1][0]*100, 2)
         return bot_probability
 
 def get_result(probability):
