@@ -8,7 +8,7 @@ def auth_to_tweepy():
     keys = ''
     
     # Get keys from .yaml file
-    with open("config.yaml") as file:
+    with open("Resources/Config.yaml") as file:
         keys = yaml.safe_load(file)
 
     # Initialize client

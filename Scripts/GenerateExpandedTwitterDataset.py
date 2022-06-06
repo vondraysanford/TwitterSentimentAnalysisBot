@@ -9,7 +9,7 @@ import yaml
 from dateutil import parser
 
 # Load dataset
-raw_df = pd.read_csv("twitter_human_bots_dataset.csv")
+raw_df = pd.read_csv("Resources/twitter_human_bots_dataset.csv")
 
 # Set list of IDs
 account_ids = list(raw_df.id)
@@ -17,7 +17,7 @@ account_ids = list(raw_df.id)
 # Authenticate to tweepy
 keys = ''
     
-with open("config.yaml") as file:
+with open("Resources/Config.yaml") as file:
     keys = yaml.safe_load(file)
 
 client = tweepy.Client(bearer_token=keys["search_tweets_api"]["bearer_token"], wait_on_rate_limit=True)
@@ -27,7 +27,7 @@ i = 0
 
 # Create .csv & write column headings
 fields = ['id','bot_status','created_at','account_age_days','verified','profile_image_url','followers_count','following_count','tweet_count','listed_count','average_tweets_per_day','hour_created','network', 'tweet_to_followers', 'follower_acq_rate', 'following_acq_rate', 'listed_acq_rate']
-filename = "twitter_dataset_expanded.csv"
+filename = "Resources/twitter_human_bots_dataset.csv"
 
 with open(filename, 'w') as csvfile: 
     csvwriter = csv.writer(csvfile) 

@@ -15,7 +15,7 @@ def create_twitter_url():
     return url
 
 def process_yaml():
-    with open("config.yaml") as file:
+    with open("Resources/Config.yaml") as file:
         return yaml.safe_load(file)
 
 def create_bearer_token(data):
@@ -35,7 +35,7 @@ def create_document_format(res_json):
     return ast.literal_eval(doc)
 
 def convert_json_to_csv(res_json):
-    data_file = open('./Examples/data_file.csv', 'w')
+    data_file = open('Resources/data_file.csv', 'w')
     csv_writer = csv.writer(data_file)
     
     count = 0
