@@ -2,10 +2,9 @@
 This discord bot is for analyzing the sentiment of tweets on Twitter.
 
 # Next Steps:
-1. Implement Bot Twitter Account Detection with Tweet Sentiment Analysis
-2. Split functionality into eight hour (8 a.m. to 4 p.m.) session, hourly & on command analysis
-3. Implement Discord.py
-4. Implement slash commands with (Dislash) https://github.com/EQUENOS/dislash.py or full rewrite with (Disnake) https://docs.disnake.dev/en/latest/
+1. Split functionality into eight hour (8 a.m. to 4 p.m.) session, hourly & on command analysis
+1. Implement Discord.py
+1. Implement slash commands with (Dislash) https://github.com/EQUENOS/dislash.py or full rewrite with (Disnake) https://docs.disnake.dev/en/latest/
 
 # Helpful Links
 - (Cheatsheet for creating this lol) - https://markdown.land/markdown-cheat-sheet
