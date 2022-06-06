@@ -7,7 +7,7 @@ from textblob import TextBlob
 def auth_to_tweepy():
     keys = ''
     
-    with open("config.yaml") as file:
+    with open("Resources/Config.yaml") as file:
         keys = yaml.safe_load(file)
 
     client = tweepy.Client(keys["search_tweets_api"]["bearer_token"])

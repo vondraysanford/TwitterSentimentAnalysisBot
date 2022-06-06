@@ -11,14 +11,14 @@ from textblob import TextBlob
 def auth_to_tweepy():
     keys = ''
     
-    with open("config.yaml") as file:
+    with open("Resources/Config.yaml") as file:
         keys = yaml.safe_load(file)
 
     client = tweepy.Client(bearer_token=keys["search_tweets_api"]["bearer_token"], wait_on_rate_limit=True)
     return client
 
 def get_xbg_model():
-    with open('model.pickle', 'rb') as read_file:
+    with open('Resources/model.pickle', 'rb') as read_file:
         xgb_model = pickle.load(read_file)
         return xgb_model
 
