@@ -1,7 +1,10 @@
-Config.yaml
-Reviews.csv
+Resources/Config.yaml
+Resources/Reviews.csv
 .DS_Store
-data_file.csv
-twitter_human_bots_dataset.csv
-twitter_dataset_expanded.csv
+Resources/data_file.csv
+Resources/twitter_human_bots_dataset.csv
+Resources/twitter_dataset_expanded.csv
 **/__pycache__
+Resources/privkey.pem
+Resources/pubkey.pem
+Resources/signature.sig
