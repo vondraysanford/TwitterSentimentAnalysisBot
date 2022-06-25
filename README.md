@@ -51,6 +51,13 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 ### Relevant Documentation
 - XGBoost - https://xgboost.readthedocs.io/en/stable/index.html
 
+## Example 6
+6. Python String Signing using Cryptography -> https://www.cryptoexamples.com/python_cryptography_string_signature_rsa.html
+### Relevant Documentation
+- Explanation of Public/Private Keys & Signing -> https://blog.todotnet.com/2018/02/public-private-keys-and-signing/
+- Cryptography - https://cryptography.io/en/latest/
+- Help - https://stackoverflow.com/questions/50608010/how-to-verify-a-signed-file-in-python
+
 # Steps
 1. Make a Twitter Account -> https://twitter.com/i/flow/signup
 1. Create a Twitter Bot -> https://developer.twitter.com/en
@@ -58,4 +65,5 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 1. Take keys and integrate with tutorials -> https://developer.twitter.com/en/docs/tutorials?filter=/product/twitter-api
 1. Once comfortable, view the examples in the **Examples** section, make sure you understand them.
 1. Run GenerateExpandedTwitterDataset.py **THEN ->** GenerateModel.ipynb
+1. Run SignPickle.py and VerifyPickle.py to generate/test keys & signature
 1. Test TweetSentimentAnalysis.py & TwitterAccountBotAnalysis.py and combine processes.
