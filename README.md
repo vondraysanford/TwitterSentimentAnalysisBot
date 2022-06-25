@@ -1,10 +1,5 @@
 # Twitter Sentiment Analysis Bot
-This discord bot is for analyzing the sentiment of tweets on Twitter.
-
-# Next Steps:
-1. Split functionality into eight hour (8 a.m. to 4 p.m.) session, hourly & on command analysis
-1. Implement Discord.py
-1. Implement slash commands with (Dislash) https://github.com/EQUENOS/dislash.py or full rewrite with (Disnake) https://docs.disnake.dev/en/latest/
+This script is for analyzing the sentiment of tweets on Twitter.
 
 # Helpful Links
 - (Cheatsheet for creating this lol) - https://markdown.land/markdown-cheat-sheet
@@ -17,7 +12,6 @@ This discord bot is for analyzing the sentiment of tweets on Twitter.
 - pytz - https://pythonhosted.org/pytz/
 - seaborn - https://seaborn.pydata.org/
 - NumPy - https://numpy.org/
-- Crypto Markets Trading Hours Converter - https://www.finder.com/crypto-markets-trading-hours-converter
 
 # Examples
 ## Example 1
