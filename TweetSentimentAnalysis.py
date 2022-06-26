@@ -1,3 +1,4 @@
+import base64
 import datetime
 import numpy as np
 import pandas as pd
@@ -5,8 +6,15 @@ import pickle
 import pytz
 import tweepy
 import yaml
+import sys
 
 from textblob import TextBlob
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import serialization
 
 def auth_to_tweepy():
     keys = ''
@@ -17,7 +25,46 @@ def auth_to_tweepy():
     client = tweepy.Client(bearer_token=keys["search_tweets_api"]["bearer_token"], wait_on_rate_limit=True)
     return client
 
+def import_public_key(filename):
+    with open(filename, 'rb') as pem_in:
+        pemlines = pem_in.read()
+    public_key = serialization.load_pem_public_key(pemlines, default_backend())
+    return public_key
+
+def import_signature(filename):
+    with open(filename, 'rb') as sig_in:
+        sig_lines = sig_in.read()
+    signature = base64.urlsafe_b64decode(sig_lines)
+    return signature
+
+def verify_model(bytes):
+    try:
+        public_key = import_public_key('Resources/pubkey.pem')
+        signature = import_signature('Resources/signature.sig')
+
+        public_key.verify(
+            signature=signature,
+            data=bytes,
+            padding=padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            algorithm=hashes.SHA256()
+        )
+        is_signature_correct = True
+    except InvalidSignature:
+        is_signature_correct = False
+    
+    return(is_signature_correct)
+
 def get_xbg_model():
+    file = open('Resources/model.pickle', 'rb')
+    bytes = file.read()
+    is_verified = verify_model(bytes)
+
+    if(not is_verified):
+        sys.exit("model.pickle has been altered. Check access permissions now!")
+
     with open('Resources/model.pickle', 'rb') as read_file:
         xgb_model = pickle.load(read_file)
         return xgb_model

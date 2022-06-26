@@ -14,12 +14,6 @@ logger = logging.getLogger(__name__)
 file = open('Resources/model.pickle', 'rb')
 bytes = file.read()
 
-def import_private_key(filename):
-    with open(filename, 'rb') as pem_in:
-        pemlines = pem_in.read()
-    private_key = load_pem_private_key(pemlines, None, default_backend())
-    return private_key
-
 def import_public_key(filename):
     with open(filename, 'rb') as pem_in:
         pemlines = pem_in.read()
