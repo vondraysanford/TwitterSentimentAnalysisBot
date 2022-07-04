@@ -6,7 +6,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,7 +27,7 @@ def import_signature(filename):
 
 def verify_model(bytes):
     try:
-        public_key = import_public_key('Resources/pubkey.pem')
+        public_key = import_public_key('Resources/pubkey.cer')
         signature = import_signature('Resources/signature.sig')
 
         public_key.verify(
