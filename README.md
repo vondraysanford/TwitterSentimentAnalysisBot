@@ -60,4 +60,4 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 1. Once comfortable, view the examples in the **Examples** section, make sure you understand them.
 1. Run GenerateExpandedTwitterDataset.py **THEN ->** GenerateModel.ipynb
 1. Run SignPickle.py and VerifyPickle.py to generate/test keys & signature
-1. Test TweetSentimentAnalysis.py & TwitterAccountBotAnalysis.py and combine processes.
+1. Test TweetSentimentAnalysis.py
