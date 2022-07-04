@@ -55,8 +55,8 @@ def sign_model(bytes):
             algorithm=hashes.SHA256()
         )
 
-        export_private_key(private_key,'Resources/privkey.pem')
-        export_public_key(public_key,'Resources/pubkey.pem')
+        export_private_key(private_key,'Resources/privkey.cer')
+        export_public_key(public_key,'Resources/pubkey.cer')
         export_signature(signature, 'Resources/signature.sig')
 
         logger.info("Signature: %s", base64.urlsafe_b64encode(signature))
