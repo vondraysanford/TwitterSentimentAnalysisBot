@@ -39,7 +39,7 @@ def import_signature(filename):
 
 def verify_model(bytes):
     try:
-        public_key = import_public_key('Resources/pubkey.pem')
+        public_key = import_public_key('Resources/pubkey.cer')
         signature = import_signature('Resources/signature.sig')
 
         public_key.verify(
