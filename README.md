@@ -12,6 +12,7 @@ This script is for analyzing the sentiment of tweets on Twitter.
 - pytz - https://pythonhosted.org/pytz/
 - seaborn - https://seaborn.pydata.org/
 - NumPy - https://numpy.org/
+- discord.py - https://discordpy.readthedocs.io/en/stable/index.html
 
 # Examples
 ## Example 1
@@ -61,3 +62,6 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 1. Run GenerateExpandedTwitterDataset.py **THEN ->** GenerateModel.ipynb
 1. Run SignPickle.py and VerifyPickle.py to generate/test keys & signature
 1. Test TweetSentimentAnalysis.py
+1. Make a Discord Account -> https://discord.com/
+1. Create a new application and bot -> https://discord.com/developers/applications
+1. Create a simple bot using the generated token for your bot
