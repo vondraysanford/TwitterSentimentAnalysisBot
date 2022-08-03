@@ -16,9 +16,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 bot = commands.Bot(command_prefix='!')
+tweet_sentiment_cache = pd.DataFrame()
 
 def get_discord_token():
     keys = ''
@@ -212,17 +213,41 @@ def get_sentiment(dataframe):
     
     return embed
 
-@bot.event
-async def on_ready():
-    print("Initializing Bot...")
-    await bot.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets"))
-
-@bot.command(name='sentiment', help='Gets the sentiment of tweets on Twitter for the topic of cryptocurrency.')
-async def sentiment(context):
+@tasks.loop(minutes=15)
+async def get_data_task():
+    global tweet_sentiment_cache
+    print("Starting Data Loop...")
     client = auth_to_tweepy()
     dataframe = get_tweets_by_keyword(client, "cryptocurrency")
-    embed = get_sentiment(dataframe)
-    await context.send(embed=embed)
+    dataframes = [tweet_sentiment_cache, dataframe]
+    tweet_sentiment_cache = pd.concat(dataframes, sort=False)
 
+@tasks.loop(minutes=60)
+async def return_embed():
+    print("Starting Embed Loop...")
+    if return_embed.current_loop != 0:
+        guilds = bot.guilds
+        for guild in guilds:
+            channel_id = 0
+
+            for channel in guild.channels:
+                if channel.name=='general':
+                    channel_id = channel.id 
+
+            if channel_id != 0:
+                message_channel = bot.get_channel(channel_id)
+
+        embed = get_sentiment(tweet_sentiment_cache)
+        tweet_sentiment_cache.iloc[0:0]
+        await message_channel.send(embed=embed)
+
+@get_data_task.before_loop
+async def before():
+    print("Initializing Bot...")
+    await bot.wait_until_ready()
+    await bot.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets"))
+
+get_data_task.start()
+return_embed.start()
 token = get_discord_token()
 bot.run(token)
