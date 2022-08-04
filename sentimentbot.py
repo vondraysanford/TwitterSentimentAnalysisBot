@@ -1,5 +1,6 @@
 import base64
 import datetime
+import discord
 import numpy as np
 import pandas as pd
 import pickle
@@ -15,6 +16,19 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
+from discord.ext import commands, tasks
+
+bot = commands.Bot(command_prefix='!')
+tweet_sentiment_cache = pd.DataFrame()
+
+def get_discord_token():
+    keys = ''
+    
+    with open("Resources/Config.yaml") as file:
+        keys = yaml.safe_load(file)
+
+    token = keys["discord_api"]["client"]
+    return token
 
 def auth_to_tweepy():
     keys = ''
@@ -182,21 +196,58 @@ def get_sentiment(dataframe):
     Likely_a_bot = option_statuses['Likely a bot'] * 100
     Bot = option_statuses['Bot'] * 100
 
-    print(result)
-    print("--Accounts Analyzed--")
-    print("Not a bot: " + str(round(Not_a_bot, 2)) + "%")
-    print("Likely not a bot: " + str(round(Likely_not_a_bot, 2)) + "%")
-    print("Probably not a bot: " + str(round(Probably_not_a_bot, 2)) + "%")
-    print("Maybe a bot: " + str(round(Maybe_a_bot, 2)) + "%")
-    print("Likely a bot: " + str(round(Likely_a_bot, 2)) + "%")
-    print("Bot: " + str(round(Bot, 2))+ "%")
-    
-    return
+    embed = discord.Embed(
+            title = f"",
+            description = f"",
+            color = discord.Color.blue(),
+            author = "Twitter"
+        )
 
-def main():
+    embed.add_field(name = "Result", value = result, inline = True) 
+    embed.add_field(name = "Not a bot", value = str(round(Not_a_bot, 2)) + "%", inline = True)
+    embed.add_field(name = "Likely not a bot", value = str(round(Likely_not_a_bot, 2)) + "%", inline = True)
+    embed.add_field(name = "Probably not a bot", value = str(round(Probably_not_a_bot, 2)) + "%", inline = True)
+    embed.add_field(name = "Maybe a bot", value = str(round(Maybe_a_bot, 2)) + "%", inline = True)
+    embed.add_field(name = "Likely a bot", value = str(round(Likely_a_bot, 2)) + "%", inline = True)
+    embed.add_field(name = "Bot", value = str(round(Bot, 2)) + "%", inline = True)    
+    
+    return embed
+
+@tasks.loop(minutes=15)
+async def get_data_task():
+    global tweet_sentiment_cache
+    print("Starting Data Loop...")
     client = auth_to_tweepy()
     dataframe = get_tweets_by_keyword(client, "cryptocurrency")
-    get_sentiment(dataframe)
-    
-if __name__ == "__main__":
-    main()
+    dataframes = [tweet_sentiment_cache, dataframe]
+    tweet_sentiment_cache = pd.concat(dataframes, sort=False)
+
+@tasks.loop(minutes=60)
+async def return_embed():
+    print("Starting Embed Loop...")
+    if return_embed.current_loop != 0:
+        guilds = bot.guilds
+        for guild in guilds:
+            channel_id = 0
+
+            for channel in guild.channels:
+                if channel.name=='general':
+                    channel_id = channel.id 
+
+            if channel_id != 0:
+                message_channel = bot.get_channel(channel_id)
+
+        embed = get_sentiment(tweet_sentiment_cache)
+        tweet_sentiment_cache.iloc[0:0]
+        await message_channel.send(embed=embed)
+
+@get_data_task.before_loop
+async def before():
+    print("Initializing Bot...")
+    await bot.wait_until_ready()
+    await bot.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets"))
+
+get_data_task.start()
+return_embed.start()
+token = get_discord_token()
+bot.run(token)
