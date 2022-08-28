@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import datetime
 import discord
@@ -18,7 +19,8 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 from discord.ext import commands, tasks
 
-bot = commands.Bot(command_prefix='!')
+intents = discord.Intents.default()
+bot = commands.Bot(command_prefix='!', intents=intents, activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets"))
 tweet_sentiment_cache = pd.DataFrame()
 
 def get_discord_token():
@@ -199,9 +201,10 @@ def get_sentiment(dataframe):
     embed = discord.Embed(
             title = f"",
             description = f"",
-            color = discord.Color.blue(),
-            author = "Twitter"
+            color = discord.Color.blue()
         )
+
+    embed.set_author(name = "Twitter", icon_url = "https://about.twitter.com/content/dam/about-twitter/en/brand-toolkit/brand-download-img-1.jpg.twimg.1920.jpg")
 
     embed.add_field(name = "Result", value = result, inline = True) 
     embed.add_field(name = "Not a bot", value = str(round(Not_a_bot, 2)) + "%", inline = True)
@@ -216,15 +219,15 @@ def get_sentiment(dataframe):
 @tasks.loop(minutes=15)
 async def get_data_task():
     global tweet_sentiment_cache
-    print("Starting Data Loop...")
+    print(f"Starting Data Loop...{datetime.datetime.now()}")
     client = auth_to_tweepy()
     dataframe = get_tweets_by_keyword(client, "cryptocurrency")
     dataframes = [tweet_sentiment_cache, dataframe]
     tweet_sentiment_cache = pd.concat(dataframes, sort=False)
 
-@tasks.loop(minutes=60)
+@tasks.loop(minutes=1)
 async def return_embed():
-    print("Starting Embed Loop...")
+    print(f"Starting Embed Loop...{datetime.datetime.now()}")
     if return_embed.current_loop != 0:
         guilds = bot.guilds
         for guild in guilds:
@@ -241,13 +244,11 @@ async def return_embed():
         tweet_sentiment_cache.iloc[0:0]
         await message_channel.send(embed=embed)
 
-@get_data_task.before_loop
-async def before():
-    print("Initializing Bot...")
-    await bot.wait_until_ready()
-    await bot.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets"))
+async def main():
+    async with bot:
+        get_data_task.start()
+        return_embed.start()
+        token = get_discord_token()
+        await bot.start(token)
 
-get_data_task.start()
-return_embed.start()
-token = get_discord_token()
-bot.run(token)
+asyncio.run(main())
