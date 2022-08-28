@@ -225,7 +225,7 @@ async def get_data_task():
     dataframes = [tweet_sentiment_cache, dataframe]
     tweet_sentiment_cache = pd.concat(dataframes, sort=False)
 
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=60)
 async def return_embed():
     print(f"Starting Embed Loop...{datetime.datetime.now()}")
     if return_embed.current_loop != 0:
