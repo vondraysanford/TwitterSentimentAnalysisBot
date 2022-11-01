@@ -3,12 +3,14 @@ import base64
 import datetime
 import discord
 import numpy as np
+import os
 import pandas as pd
 import pickle
 import pytz
+import random
+import sys
 import tweepy
 import yaml
-import sys
 
 from textblob import TextBlob
 
@@ -18,10 +20,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 from discord.ext import commands, tasks
-
-intents = discord.Intents.default()
-bot = commands.Bot(command_prefix='!', intents=intents, activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets"))
-tweet_sentiment_cache = pd.DataFrame()
 
 def get_discord_token():
     keys = ''
@@ -216,39 +214,189 @@ def get_sentiment(dataframe):
     
     return embed
 
-@tasks.loop(minutes=15)
-async def get_data_task():
-    global tweet_sentiment_cache
-    print(f"Starting Data Loop...{datetime.datetime.now()}")
-    client = auth_to_tweepy()
-    dataframe = get_tweets_by_keyword(client, "cryptocurrency")
-    dataframes = [tweet_sentiment_cache, dataframe]
-    tweet_sentiment_cache = pd.concat(dataframes, sort=False)
+class DiscordV2Bot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args, 
+            **kwargs,
+            intents = discord.Intents.all(),
+            command_prefix = '!',
+            activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets")
+        )
 
-@tasks.loop(minutes=60)
-async def return_embed():
-    print(f"Starting Embed Loop...{datetime.datetime.now()}")
-    if return_embed.current_loop != 0:
-        guilds = bot.guilds
-        for guild in guilds:
-            channel_id = 0
+        self.tweepy_client = auth_to_tweepy()
+        self.tweet_sentiment_cache = pd.DataFrame()
 
-            for channel in guild.channels:
-                if channel.name=='general':
-                    channel_id = channel.id 
+        self.role_message_id = 1034629547548741652  # ID of the message that can be reacted to to add/remove a role.
+        self.emoji_to_role = {
+            discord.PartialEmoji(name='🔴'): 1034630529527586916,  # ID of the role associated with unicode emoji '🔴'.
+            discord.PartialEmoji(name='🟡'): 1034630611203268618,  # ID of the role associated with unicode emoji '🟡'.
+            discord.PartialEmoji(name='🟢'): 1034630622079111230,  # ID of the role associated with unicode emoji '🟢'.
+        }
 
-            if channel_id != 0:
-                message_channel = bot.get_channel(channel_id)
+        # an attribute we can access from our task
+        self.counter = 0
 
-        embed = get_sentiment(tweet_sentiment_cache)
-        tweet_sentiment_cache.iloc[0:0]
-        await message_channel.send(embed=embed)
+    async def on_ready(self) -> None:
+        print(f'Logged in as {self.user} (ID: {self.user.id})')
+        print('------')
 
-async def main():
-    async with bot:
-        get_data_task.start()
-        return_embed.start()
-        token = get_discord_token()
-        await bot.start(token)
+    async def on_member_join(self, member):
+        guild = member.guild
+        if guild.system_channel is not None:
+            to_send = f'Welcome {member.mention} to {guild.name}!'
+            await guild.system_channel.send(to_send)
+
+    async def on_message(self, message: discord.Message) -> None:
+        # we do not want the bot to reply to itself
+        if message.author.id == self.user.id:
+            return
+
+        if message.content.startswith('!hello'):
+            await message.reply('Hello!', mention_author=True)
+
+        if message.content.startswith('!deleteme'):
+            await message.channel.send('Goodbye in 3 seconds...', delete_after=3.0)
+
+        if message.content.startswith('!editme'):
+            msg = await message.channel.send('10')
+            await asyncio.sleep(3.0)
+            await msg.edit(content='40')
+
+        if message.content.startswith('!guess'):
+            await message.channel.send('Guess a number between 1 and 10.')
+
+            def is_correct(m):
+                return m.author == message.author and m.content.isdigit()
+
+            answer = random.randint(1, 10)
+
+            try:
+                guess = await self.wait_for('message', check=is_correct, timeout=5.0)
+            except asyncio.TimeoutError:
+                return await message.channel.send(f'Sorry, you took too long it was {answer}.')
+
+            if int(guess.content) == answer:
+                await message.channel.send('You are right!')
+            else:
+                await message.channel.send(f'Oops. It is actually {answer}.')
+
+        await self.process_commands(message)        
+
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        """Gives a role based on a reaction emoji."""
+        # Make sure that the message the user is reacting to is the one we care about.
+        if payload.message_id != self.role_message_id:
+            return
+
+        guild = self.get_guild(payload.guild_id)
+        if guild is None:
+            # Check if we're still in the guild and it's cached.
+            return
+
+        try:
+            role_id = self.emoji_to_role[payload.emoji]
+        except KeyError:
+            # If the emoji isn't the one we care about then exit as well.
+            return
+
+        role = guild.get_role(role_id)
+        if role is None:
+            # Make sure the role still exists and is valid.
+            return
+
+        try:
+            # Finally, add the role.
+            await payload.member.add_roles(role)
+        except discord.HTTPException:
+            # If we want to do something in case of errors we'd do it here.
+            pass
+
+    async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
+        """Removes a role based on a reaction emoji."""
+        # Make sure that the message the user is reacting to is the one we care about.
+        if payload.message_id != self.role_message_id:
+            return
+
+        guild = self.get_guild(payload.guild_id)
+        if guild is None:
+            # Check if we're still in the guild and it's cached.
+            return
+
+        try:
+            role_id = self.emoji_to_role[payload.emoji]
+        except KeyError:
+            # If the emoji isn't the one we care about then exit as well.
+            return
+
+        role = guild.get_role(role_id)
+        if role is None:
+            # Make sure the role still exists and is valid.
+            return
+
+        # The payload for `on_raw_reaction_remove` does not provide `.member`
+        # so we must get the member ourselves from the payload's `.user_id`.
+        member = guild.get_member(payload.user_id)
+        if member is None:
+            # Make sure the member still exists and is valid.
+            return
+
+        try:
+            # Finally, remove the role.
+            await member.remove_roles(role)
+        except discord.HTTPException:
+            # If we want to do something in case of errors we'd do it here.
+            pass
+
+    async def setup_hook(self) -> None:
+        print("Starting tasks")
+        self.my_background_task.start()
+        self.get_data_task.start()
+        print("Loading cogs")
+        for filename in os.listdir('./cogs'):
+            if filename.endswith('.py'):
+                await self.load_extension(f'cogs.{filename[:-3]}')
+
+    @tasks.loop(minutes=15, reconnect=True)
+    async def get_data_task(self):
+        print(f"Starting Data Loop...{datetime.datetime.now()}")
+        dataframe = get_tweets_by_keyword(self.tweepy_client, "cryptocurrency")
+        dataframes = [self.tweet_sentiment_cache, dataframe]
+        self.tweet_sentiment_cache = pd.concat(dataframes, sort=False)
+
+        count = self.get_data_task.current_loop + 1
+        if self.get_data_task.current_loop != 0 and count % 4 == 0:
+            print(f"Starting Embed Loop...{datetime.datetime.now()}")
+            guilds = self.guilds
+            for guild in guilds:
+                channel_id = 0
+
+                for channel in guild.channels:
+                    if channel.name=='general':
+                        channel_id = channel.id 
+
+                if channel_id != 0:
+                    message_channel = self.get_channel(channel_id)
+
+            embed = get_sentiment(self.tweet_sentiment_cache)
+            self.tweet_sentiment_cache.iloc[0:0]
+            await message_channel.send(embed=embed)
+
+    @tasks.loop(seconds=60, reconnect=True)  # task runs every 60 seconds
+    async def my_background_task(self):
+        channel = self.get_channel(1034614887411892315)  # channel ID goes here
+        self.counter += 1
+        await channel.send(f"Task iterations since start: {self.counter}")
+
+    @my_background_task.before_loop
+    async def before_my_background_task(self):
+        print("Waiting for bot to log in...")
+        await self.wait_until_ready()
+        print("Initializing test task...")
+
+async def main() -> None:
+    token = get_discord_token()
+    bot = DiscordV2Bot()
+    await bot.start(token)
 
 asyncio.run(main())
