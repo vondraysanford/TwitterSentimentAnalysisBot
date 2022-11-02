@@ -13,6 +13,7 @@ This script is for analyzing the sentiment of tweets on Twitter.
 - seaborn - https://seaborn.pydata.org/
 - NumPy - https://numpy.org/
 - discord.py - https://discordpy.readthedocs.io/en/stable/index.html
+- aiohttp - https://docs.aiohttp.org/en/stable/index.html
 
 # Examples
 ## Example 1
@@ -53,6 +54,9 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 - Cryptography - https://cryptography.io/en/latest/
 - Help - https://stackoverflow.com/questions/50608010/how-to-verify-a-signed-file-in-python
 
+## Example 7
+7. Rapptz discord.py v2.0 examples -> https://github.com/Rapptz/discord.py/tree/master/examples
+
 # Steps
 1. Make a Twitter Account -> https://twitter.com/i/flow/signup
 1. Create a Twitter Bot -> https://developer.twitter.com/en
@@ -64,4 +68,4 @@ A Beginner’s Guide to Sentiment Analysis with Python -> https://towardsdatasci
 1. Test TweetSentimentAnalysis.py
 1. Make a Discord Account -> https://discord.com/
 1. Create a new application and bot -> https://discord.com/developers/applications
-1. Create a simple bot using the generated token for your bot
+1. Create a bot using the generated token for your bot
