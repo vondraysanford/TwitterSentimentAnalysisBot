@@ -1,3 +1,4 @@
+import aiohttp
 import asyncio
 import discord
 import json
@@ -8,7 +9,7 @@ import yaml
 
 from discord.ext import commands, tasks
 
-def get_discord_token():
+async def get_discord_token():
     keys = ''
     
     with open("Resources/Config.yaml") as file:
@@ -17,7 +18,7 @@ def get_discord_token():
     token = keys["discord_api"]["client"]
     return token
 
-def get_Etherscan_Key():
+async def get_Etherscan_Key():
     config = ''
 
     with open("Resources/Config.yaml") as file:
@@ -25,33 +26,6 @@ def get_Etherscan_Key():
 
     key = config["etherscan"]["API_Key"]
     return key
-
-ETHERSCAN_API_KEY = get_Etherscan_Key()
-
-def get_Transaction_Time(gas_price):
-        transaction_time_response = requests.get(f'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice={gas_price}&apikey={ETHERSCAN_API_KEY}')
-        transaction_time_content = json.loads(transaction_time_response.content)
-        seconds = int(transaction_time_content['result']) % (24 * 3600)
-        hour = seconds // 3600
-        seconds %= 3600
-        minutes = seconds // 60
-        seconds %= 60
-
-        return "%d:%02d:%02d" % (hour, minutes, seconds)
-
-def get_Gas_Prices():
-    gas_prices_request = requests.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={ETHERSCAN_API_KEY}')
-    gas_price_content = json.loads(gas_prices_request.content)
-
-    safe_gas_price = gas_price_content['result']['SafeGasPrice']
-    propose_gas_price = gas_price_content['result']['ProposeGasPrice']
-    fast_gas_price = gas_price_content['result']['FastGasPrice']
-
-    slow = (f'🐢 {safe_gas_price}|')
-    medium = (f'🚌 {propose_gas_price}|')
-    fast = (f'🚀 {fast_gas_price} (gwei)')
-    
-    return f'{slow} {medium} {fast}'
 
 class DiscordV2Bot(commands.Bot):
     # Note: When using commands.Bot instead of discord.Client, the bot will
@@ -61,10 +35,11 @@ class DiscordV2Bot(commands.Bot):
             *args, 
             **kwargs,
             intents = discord.Intents.all(),
-            command_prefix = '!',
-            activity = discord.Activity(type = discord.ActivityType.watching, name = f'{get_Gas_Prices()}')
+            command_prefix = '!'
         )
 
+        self.session = aiohttp.ClientSession()
+        self.mod_channel_id = 1034614887411892315
         self.role_message_id = 1034629547548741652  # ID of the message that can be reacted to to add/remove a role.
         self.emoji_to_role = {
             discord.PartialEmoji(name='🔴'): 1034630529527586916,  # ID of the role associated with unicode emoji '🔴'.
@@ -155,7 +130,8 @@ class DiscordV2Bot(commands.Bot):
             # Finally, add the role.
             await payload.member.add_roles(role)
         except discord.HTTPException:
-            # If we want to do something in case of errors we'd do it here.
+            modchannel = self.get_channel(self.mod_channel_id)
+            await modchannel.send("You are ratelimited")
             pass
 
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
@@ -194,7 +170,6 @@ class DiscordV2Bot(commands.Bot):
             # If we want to do something in case of errors we'd do it here.
             pass
 
-
     async def setup_hook(self) -> None:
         print("Starting tasks")
         self.get_Gas_Task.start()
@@ -203,12 +178,49 @@ class DiscordV2Bot(commands.Bot):
         for filename in os.listdir('./Examples/cogs'):
             if filename.endswith('.py'):
                 await self.load_extension(f'cogs.{filename[:-3]}')
+        self.activity = discord.Activity(type = discord.ActivityType.watching, name = f'{await self.get_Gas_Prices()}')
+
+    async def close(self) -> None:
+        await super().close()
+        await self.session.close()
+
+    async def start(self) -> None:
+        await super().start(await get_discord_token(), reconnect=True)
+
+    async def get_Transaction_Time(gas_price):
+        transaction_time_response = requests.get(f'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice={gas_price}&apikey={get_Etherscan_Key()}')
+        transaction_time_content = json.loads(transaction_time_response.content)
+        seconds = int(transaction_time_content['result']) % (24 * 3600)
+        hour = seconds // 3600
+        seconds %= 3600
+        minutes = seconds // 60
+        seconds %= 60
+
+        return "%d:%02d:%02d" % (hour, minutes, seconds)
+
+    async def get_Gas_Prices(self):
+        async with self.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await get_Etherscan_Key()}') as response:
+            
+            gas_prices_content = await response.content.read()
+            gas_prices_object = json.loads(gas_prices_content.decode("utf-8"))
+
+            safe_gas_price = gas_prices_object['result']['SafeGasPrice']
+            propose_gas_price = gas_prices_object['result']['ProposeGasPrice']
+            fast_gas_price = gas_prices_object['result']['FastGasPrice']
+
+            slow = (f'🐢 {safe_gas_price}|')
+            medium = (f'🚌 {propose_gas_price}|')
+            fast = (f'🚀 {fast_gas_price} (gwei)')
+            
+            return f'{slow} {medium} {fast}'
 
     @tasks.loop(seconds=1)
     async def get_Gas_Task(self) -> None:
         print("Getting gas prices...")
-        output = get_Gas_Prices()
-        await self.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f'{output}'))
+        output = await self.get_Gas_Prices()
+        if output != self.activity.name:
+            print("Changing bot activity...")
+            await self.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f'{output}'))
 
     @get_Gas_Task.before_loop
     async def before(self) -> None:
@@ -229,6 +241,6 @@ class DiscordV2Bot(commands.Bot):
 async def main() -> None:
     token = get_discord_token()
     bot = DiscordV2Bot()
-    await bot.start(token)
+    await bot.start()
 
 asyncio.run(main())
