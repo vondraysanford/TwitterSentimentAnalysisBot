@@ -4,28 +4,9 @@ import discord
 import json
 import os
 import random
-import requests
 import yaml
 
 from discord.ext import commands, tasks
-
-async def get_discord_token():
-    keys = ''
-    
-    with open("Resources/Config.yaml") as file:
-        keys = yaml.safe_load(file)
-
-    token = keys["discord_api"]["client"]
-    return token
-
-async def get_Etherscan_Key():
-    config = ''
-
-    with open("Resources/Config.yaml") as file:
-        config = yaml.safe_load(file)
-
-    key = config["etherscan"]["API_Key"]
-    return key
 
 class DiscordV2Bot(commands.Bot):
     # Note: When using commands.Bot instead of discord.Client, the bot will
@@ -185,21 +166,28 @@ class DiscordV2Bot(commands.Bot):
         await self.session.close()
 
     async def start(self) -> None:
-        await super().start(await get_discord_token(), reconnect=True)
+        await super().start(await self.get_discord_token(), reconnect=True)
 
-    async def get_Transaction_Time(gas_price):
-        transaction_time_response = requests.get(f'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice={gas_price}&apikey={get_Etherscan_Key()}')
-        transaction_time_content = json.loads(transaction_time_response.content)
-        seconds = int(transaction_time_content['result']) % (24 * 3600)
-        hour = seconds // 3600
-        seconds %= 3600
-        minutes = seconds // 60
-        seconds %= 60
+    async def get_discord_token(self):
+        keys = ''
+        
+        with open("Resources/Config.yaml") as file:
+            keys = yaml.safe_load(file)
 
-        return "%d:%02d:%02d" % (hour, minutes, seconds)
+        token = keys["discord_api"]["client"]
+        return token
+
+    async def get_Etherscan_Key(self):
+        config = ''
+
+        with open("Resources/Config.yaml") as file:
+            config = yaml.safe_load(file)
+
+        key = config["etherscan"]["API_Key"]
+        return key
 
     async def get_Gas_Prices(self):
-        async with self.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await get_Etherscan_Key()}') as response:
+        async with self.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await self.get_Etherscan_Key()}') as response:
             
             gas_prices_content = await response.content.read()
             gas_prices_object = json.loads(gas_prices_content.decode("utf-8"))
@@ -239,7 +227,6 @@ class DiscordV2Bot(commands.Bot):
         print("Initializing test task...")
 
 async def main() -> None:
-    token = get_discord_token()
     bot = DiscordV2Bot()
     await bot.start()
 

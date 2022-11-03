@@ -1,4 +1,5 @@
 import discord
+import json
 from discord import app_commands
 from discord.ext import commands
 from enum import Enum
@@ -38,6 +39,24 @@ class Test(commands.Cog):
         url_view.add_item(discord.ui.Button(label='Go to Message', style=discord.ButtonStyle.url, url=message.jump_url))
 
         await log_channel.send(embed=embed, view=url_view)
+        
+    async def get_Transaction_Time(self):
+        async with self.bot.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await self.bot.get_Etherscan_Key()}') as response:
+            
+            gas_prices_content = await response.content.read()
+            gas_prices_object = json.loads(gas_prices_content.decode("utf-8"))
+            fast_gas_price = gas_prices_object['result']['FastGasPrice']
+
+            async with self.bot.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice={fast_gas_price}&apikey={await self.bot.get_Etherscan_Key()}') as response:
+                transaction_time_content = await response.content.read()
+                transaction_time_object = json.loads(transaction_time_content.decode("utf-8"))
+                seconds = int(transaction_time_object['result']) % (24 * 3600)
+                hour = seconds // 3600
+                seconds %= 3600
+                minutes = seconds // 60
+                seconds %= 60
+
+                return "%d:%02d:%02d" % (hour, minutes, seconds)
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
@@ -88,6 +107,12 @@ class Test(commands.Cog):
     async def fruit(self, interaction: discord.Interaction, fruit: Fruits):
         """Choose a fruit!"""
         await interaction.response.send_message(repr(fruit))
+
+    @app_commands.command(name="transactiontime")
+    async def transctiontime(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        message = await self.get_Transaction_Time()
+        await interaction.followup.send(f"The fastest tx will send in {message}")
 
 async def setup(bot):
     await bot.add_cog(Test(bot))
