@@ -1,3 +1,4 @@
+import aiohttp
 import asyncio
 import base64
 import datetime
@@ -20,15 +21,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 from discord.ext import commands, tasks
-
-def get_discord_token():
-    keys = ''
-    
-    with open("Resources/Config.yaml") as file:
-        keys = yaml.safe_load(file)
-
-    token = keys["discord_api"]["client"]
-    return token
 
 def auth_to_tweepy():
     keys = ''
@@ -224,18 +216,17 @@ class DiscordV2Bot(commands.Bot):
             activity = discord.Activity(type = discord.ActivityType.watching, name = "All Tweets")
         )
 
+        self.session = aiohttp.ClientSession()
         self.tweepy_client = auth_to_tweepy()
         self.tweet_sentiment_cache = pd.DataFrame()
 
+        self.mod_channel_id = 1034614887411892315
         self.role_message_id = 1034629547548741652  # ID of the message that can be reacted to to add/remove a role.
         self.emoji_to_role = {
             discord.PartialEmoji(name='🔴'): 1034630529527586916,  # ID of the role associated with unicode emoji '🔴'.
             discord.PartialEmoji(name='🟡'): 1034630611203268618,  # ID of the role associated with unicode emoji '🟡'.
             discord.PartialEmoji(name='🟢'): 1034630622079111230,  # ID of the role associated with unicode emoji '🟢'.
         }
-
-        # an attribute we can access from our task
-        self.counter = 0
 
     async def on_ready(self) -> None:
         print(f'Logged in as {self.user} (ID: {self.user.id})')
@@ -309,7 +300,8 @@ class DiscordV2Bot(commands.Bot):
             # Finally, add the role.
             await payload.member.add_roles(role)
         except discord.HTTPException:
-            # If we want to do something in case of errors we'd do it here.
+            modchannel = self.get_channel(self.mod_channel_id)
+            await modchannel.send("You are ratelimited")
             pass
 
     async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
@@ -350,12 +342,35 @@ class DiscordV2Bot(commands.Bot):
 
     async def setup_hook(self) -> None:
         print("Starting tasks")
-        self.my_background_task.start()
         self.get_data_task.start()
         print("Loading cogs")
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
                 await self.load_extension(f'cogs.{filename[:-3]}')
+
+    async def close(self) -> None:
+        await super().close()
+        await self.session.close()
+
+    async def start(self) -> None:
+        await super().start(await self.get_discord_token(), reconnect=True)
+
+    async def get_discord_token(self):
+        keys = ''
+        
+        with open("Resources/Config.yaml") as file:
+            keys = yaml.safe_load(file)
+
+        token = keys["discord_api"]["client"]
+        return token
+
+    @tasks.loop(seconds=1)
+    async def get_gas_task(self) -> None:
+        print("Getting gas prices...")
+        output = await self.get_gas_prices()
+        if output != self.activity.name:
+            print("Changing bot activity...")
+            await self.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f'{output}'))
 
     @tasks.loop(minutes=15, reconnect=True)
     async def get_data_task(self):
@@ -382,21 +397,8 @@ class DiscordV2Bot(commands.Bot):
             self.tweet_sentiment_cache.iloc[0:0]
             await message_channel.send(embed=embed)
 
-    @tasks.loop(seconds=60, reconnect=True)  # task runs every 60 seconds
-    async def my_background_task(self):
-        channel = self.get_channel(1034614887411892315)  # channel ID goes here
-        self.counter += 1
-        await channel.send(f"Task iterations since start: {self.counter}")
-
-    @my_background_task.before_loop
-    async def before_my_background_task(self):
-        print("Waiting for bot to log in...")
-        await self.wait_until_ready()
-        print("Initializing test task...")
-
 async def main() -> None:
-    token = get_discord_token()
     bot = DiscordV2Bot()
-    await bot.start(token)
+    await bot.start()
 
 asyncio.run(main())

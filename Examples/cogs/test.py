@@ -1,7 +1,7 @@
 import discord
 import json
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from enum import Enum
 from typing import Literal
 
@@ -13,6 +13,9 @@ class Test(commands.Cog):
             callback=self.report_message,
         )
         self.bot.tree.add_command(self.ctx_menu)
+
+        # an attribute we can access from our task
+        self.counter = 0
 
     async def cog_unload(self) -> None:
         self.bot.tree.remove_command(self.ctx_menu.name, type=self.ctx_menu.type)
@@ -62,6 +65,7 @@ class Test(commands.Cog):
     async def on_ready(self) -> None:
         print('Test Cog Loaded')
         print('------')
+        self.my_background_task.start()
 
     @app_commands.describe(
         first_value='The first value you want to add something to',
@@ -113,6 +117,17 @@ class Test(commands.Cog):
         await interaction.response.defer()
         message = await self.get_Transaction_Time()
         await interaction.followup.send(f"The fastest tx will send in {message}")
+
+    @tasks.loop(seconds=60)  # task runs every 60 seconds
+    async def my_background_task(self):
+        channel = self.bot.get_channel(1034614887411892315)  # channel ID goes here
+        self.counter += 1
+        await channel.send(f"Task iterations since start: {self.counter}")
+
+    @my_background_task.before_loop
+    async def before_my_task(self):
+        await self.bot.wait_until_ready()
+        print("Initializing test task...")
 
 async def setup(bot):
     await bot.add_cog(Test(bot))

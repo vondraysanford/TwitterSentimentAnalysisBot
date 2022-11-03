@@ -28,9 +28,6 @@ class DiscordV2Bot(commands.Bot):
             discord.PartialEmoji(name='🟢'): 1034630622079111230,  # ID of the role associated with unicode emoji '🟢'.
         }
 
-        # an attribute we can access from our task
-        self.counter = 0
-
     async def on_ready(self) -> None:
         print(f'Logged in as {self.user} (ID: {self.user.id})')
         print('------')
@@ -154,7 +151,6 @@ class DiscordV2Bot(commands.Bot):
     async def setup_hook(self) -> None:
         print("Starting tasks")
         self.get_Gas_Task.start()
-        self.my_background_task.start()
         print("Loading cogs")
         for filename in os.listdir('./Examples/cogs'):
             if filename.endswith('.py'):
@@ -213,18 +209,7 @@ class DiscordV2Bot(commands.Bot):
     @get_Gas_Task.before_loop
     async def before(self) -> None:
         await self.wait_until_ready()
-        print("Initializing gas task...")
-
-    @tasks.loop(seconds=60)  # task runs every 60 seconds
-    async def my_background_task(self):
-        channel = self.get_channel(1034614887411892315)  # channel ID goes here
-        self.counter += 1
-        await channel.send(f"Task iterations since start: {self.counter}")
-
-    @my_background_task.before_loop
-    async def before_my_task(self):
-        await self.wait_until_ready()
-        print("Initializing test task...")
+        print("Initializing gas task...")    
 
 async def main() -> None:
     bot = DiscordV2Bot()
