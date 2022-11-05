@@ -10,7 +10,6 @@ import pickle
 import pytz
 import random
 import sys
-import tweepy
 import yaml
 
 from textblob import TextBlob
@@ -21,15 +20,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 from discord.ext import commands, tasks
-
-def auth_to_tweepy():
-    keys = ''
-    
-    with open("Resources/Config.yaml") as file:
-        keys = yaml.safe_load(file)
-
-    client = tweepy.Client(bearer_token=keys["search_tweets_api"]["bearer_token"], wait_on_rate_limit=True)
-    return client
+from tweepy.asynchronous import AsyncClient, AsyncPaginator
 
 def import_public_key(filename):
     with open(filename, 'rb') as pem_in:
@@ -75,8 +66,8 @@ def get_xbg_model():
         xgb_model = pickle.load(read_file)
         return xgb_model
 
-def get_user_info(client, id):
-    user = client.get_user(id=id, user_fields="created_at,verified,public_metrics,description,profile_image_url")
+async def get_user_info(client, id):
+    user = await client.get_user(id=id, user_fields="created_at,verified,public_metrics,description,profile_image_url")
 
     if user.data is not None:
 
@@ -136,7 +127,7 @@ def get_result(probability):
     else:
         return 'Bot'
 
-def get_tweets_by_keyword(client, keyword):    
+async def get_tweets_by_keyword(client, keyword):    
     tweet_ids = []
     tweet_times = []
     tweet_strings = []
@@ -145,7 +136,7 @@ def get_tweets_by_keyword(client, keyword):
     option_statuses = []
 
     # Get maximum number of Tweets from the last seven days that match a search keyword
-    for tweet in tweepy.Paginator(client.search_recent_tweets, query=keyword, expansions = "author_id",  tweet_fields=['context_annotations', 'created_at'], max_results=100).flatten(limit=450):
+    async for tweet in AsyncPaginator(client.search_recent_tweets, query=keyword, expansions = "author_id",  tweet_fields=['context_annotations', 'created_at'], max_results=100).flatten(limit=450):
         
         # Exclude retweets, we only want original thoughts
         if ("RT @" not in tweet.text):
@@ -158,7 +149,7 @@ def get_tweets_by_keyword(client, keyword):
             polarity_scores.append(TextBlob(tweet.text).sentiment.polarity)
             subjectivity_scores.append(TextBlob(tweet.text).sentiment.subjectivity)
 
-            account_features = get_user_info(client, tweet.author_id)
+            account_features = await get_user_info(client, tweet.author_id)
             xgb_model = get_xbg_model()
             probability_score = get_bot_probability(account_features, xgb_model)
             option_status = get_result (probability_score)
@@ -217,7 +208,6 @@ class DiscordV2Bot(commands.Bot):
         )
 
         self.session = aiohttp.ClientSession()
-        self.tweepy_client = auth_to_tweepy()
         self.tweet_sentiment_cache = pd.DataFrame()
 
         self.mod_channel_id = 1034614887411892315
@@ -364,6 +354,15 @@ class DiscordV2Bot(commands.Bot):
         token = keys["discord_api"]["client"]
         return token
 
+    async def auth_to_tweepy(self):
+        keys = ''
+        
+        with open("Resources/Config.yaml") as file:
+            keys = yaml.safe_load(file)
+
+        client = AsyncClient(bearer_token=keys["search_tweets_api"]["bearer_token"], wait_on_rate_limit=True)
+        return client
+
     @tasks.loop(seconds=1)
     async def get_gas_task(self) -> None:
         print("Getting gas prices...")
@@ -373,9 +372,10 @@ class DiscordV2Bot(commands.Bot):
             await self.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f'{output}'))
 
     @tasks.loop(minutes=15, reconnect=True)
-    async def get_data_task(self):
+    async def get_data_task(self) -> None:
         print(f"Starting Data Loop...{datetime.datetime.now()}")
-        dataframe = get_tweets_by_keyword(self.tweepy_client, "cryptocurrency")
+        tweepy_client = await self.auth_to_tweepy()
+        dataframe = await get_tweets_by_keyword(tweepy_client, "cryptocurrency")
         dataframes = [self.tweet_sentiment_cache, dataframe]
         self.tweet_sentiment_cache = pd.concat(dataframes, sort=False)
 

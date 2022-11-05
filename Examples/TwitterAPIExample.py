@@ -1,11 +1,12 @@
-import requests
+import aiohttp
+import asyncio
 import json
 import csv
 import ast
 import yaml
 
-def create_twitter_url():
-    handle = "zhusu"
+async def create_twitter_url():
+    handle = "elonmusk"
     max_results = 100
     mrf = "max_results={}".format(max_results)
     q = "query=from:{}".format(handle)
@@ -14,19 +15,23 @@ def create_twitter_url():
     )
     return url
 
-def process_yaml():
+async def process_yaml():
     with open("Resources/Config.yaml") as file:
         return yaml.safe_load(file)
 
-def create_bearer_token(data):
+async def create_bearer_token(data):
     return data["search_tweets_api"]["bearer_token"]
 
-def twitter_auth_and_connect(bearer_token, url):
+async def twitter_auth_and_connect(bearer_token, url):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
-    response = requests.request("GET", url, headers=headers)
-    return response.json()
+    #response = requests.request("GET", url, headers=headers)
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(url) as response:
+            twitter_content = await response.content.read()
+            twitter_object = json.loads(twitter_content.decode("utf-8"))
+            return twitter_object
 
-def create_document_format(res_json):
+async def create_document_format(res_json):
     data_only = res_json["data"]
     doc_start = '"documents": {}'.format(data_only)
     str_json = "{" + doc_start + "}"
@@ -34,8 +39,8 @@ def create_document_format(res_json):
     doc = json.loads(dump_doc)
     return ast.literal_eval(doc)
 
-def convert_json_to_csv(res_json):
-    data_file = open('Resources/data_file.csv', 'w')
+async def convert_json_to_csv(res_json):
+    data_file = open('Resources/aiohttp_data_file.csv', 'w')
     csv_writer = csv.writer(data_file)
     
     count = 0
@@ -49,12 +54,11 @@ def convert_json_to_csv(res_json):
     
     data_file.close()
 
-def main():
-    url = create_twitter_url()
-    data = process_yaml()
-    bearer_token = create_bearer_token(data)
-    res_json = twitter_auth_and_connect(bearer_token, url)
-    convert_json_to_csv(res_json)
+async def main():
+    url = await create_twitter_url()
+    data = await process_yaml()
+    bearer_token = await create_bearer_token(data)
+    res_json = await twitter_auth_and_connect(bearer_token, url)
+    await convert_json_to_csv(res_json)
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())
