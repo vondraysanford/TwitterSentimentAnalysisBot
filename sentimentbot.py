@@ -1,8 +1,9 @@
-import aiohttp
 import asyncio
 import base64
 import datetime
 import discord
+import logging
+import logging.handlers
 import numpy as np
 import os
 import pandas as pd
@@ -41,6 +42,20 @@ class DiscordV2Bot(commands.Bot):
             discord.PartialEmoji(name='🟡'): 1034630611203268618,  # ID of the role associated with unicode emoji '🟡'.
             discord.PartialEmoji(name='🟢'): 1034630622079111230,  # ID of the role associated with unicode emoji '🟢'.
         }
+
+        logger = logging.getLogger('discord')
+        logger.setLevel(logging.INFO)
+
+        handler = logging.handlers.RotatingFileHandler(
+            filename='Resources/discord.log',
+            encoding='utf-8',
+            maxBytes=32 * 1024 * 1024,  # 32 MiB
+            backupCount=5,  # Rotate through 5 files
+        )
+        dt_fmt = '%Y-%m-%d %H:%M:%S'
+        formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', dt_fmt, style='{')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
     async def on_ready(self) -> None:
         print(f'Logged in as {self.user} (ID: {self.user.id})')
@@ -364,29 +379,41 @@ class DiscordV2Bot(commands.Bot):
 
     @tasks.loop(minutes=15, reconnect=True)
     async def get_data_task(self) -> None:
-        print(f"Starting Data Loop...{datetime.datetime.now()}")
-        tweepy_client = await self.auth_to_tweepy()
-        dataframe = await self.get_tweets_by_keyword(tweepy_client, "cryptocurrency")
-        dataframes = [self.tweet_sentiment_cache, dataframe]
-        self.tweet_sentiment_cache = pd.concat(dataframes, sort=False)
+        try:
+            print(f"Starting Data Loop...{datetime.datetime.now()}")
+            tweepy_client = await self.auth_to_tweepy()
+            dataframe = await self.get_tweets_by_keyword(tweepy_client, "cryptocurrency")
+            dataframes = [self.tweet_sentiment_cache, dataframe]
+            self.tweet_sentiment_cache = pd.concat(dataframes, sort=False)
 
-        count = self.get_data_task.current_loop + 1
-        if self.get_data_task.current_loop != 0 and count % 4 == 0:
-            print(f"Starting Embed Loop...{datetime.datetime.now()}")
-            guilds = self.guilds
-            for guild in guilds:
-                channel_id = 0
+            count = self.get_data_task.current_loop + 1
+            if self.get_data_task.current_loop != 0 and count % 4 == 0:
+                print(f"Starting Embed Loop...{datetime.datetime.now()}")
+                guilds = self.guilds
+                for guild in guilds:
+                    channel_id = 0
 
-                for channel in guild.channels:
-                    if channel.name=='general':
-                        channel_id = channel.id 
+                    for channel in guild.channels:
+                        if channel.name=='general':
+                            channel_id = channel.id 
 
-                if channel_id != 0:
-                    message_channel = self.get_channel(channel_id)
+                    if channel_id != 0:
+                        message_channel = self.get_channel(channel_id)
 
-            embed = await self.get_sentiment(self.tweet_sentiment_cache)
-            self.tweet_sentiment_cache.iloc[0:0]
-            await message_channel.send(embed=embed)
+                embed = await self.get_sentiment(self.tweet_sentiment_cache)
+                self.tweet_sentiment_cache.iloc[0:0]
+                await message_channel.send(embed=embed)
+        except Exception as e:
+            print(f"Error with TSB task: {e}")
+            pass
+        
+
+    @get_data_task.before_loop
+    async def before_get_data_task(self):
+        await self.wait_until_ready()  # wait until the bot logs in
+        print("Initializing TS task...")       
+
+
 
 async def main() -> None:
     bot = DiscordV2Bot()

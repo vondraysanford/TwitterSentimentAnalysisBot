@@ -9,3 +9,4 @@ Resources/privkey.cer
 Resources/pubkey.cer
 Resources/signature.sig
 Resources/aiohttp_data_file.csv
+Resources/discord.log

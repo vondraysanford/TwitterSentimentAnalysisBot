@@ -1,5 +1,7 @@
+import aiohttp
 import discord
 import json
+import yaml
 from discord import app_commands
 from discord.ext import commands, tasks
 from enum import Enum
@@ -42,30 +44,57 @@ class Test(commands.Cog):
         url_view.add_item(discord.ui.Button(label='Go to Message', style=discord.ButtonStyle.url, url=message.jump_url))
 
         await log_channel.send(embed=embed, view=url_view)
+
+    async def get_Etherscan_Key(self):
+        config = ''
+
+        with open("Resources/Config.yaml") as file:
+            config = yaml.safe_load(file)
+
+        key = config["etherscan"]["API_Key"]
+        return key
+
+    async def get_gas_prices(self):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await self.get_Etherscan_Key()}') as response:
+                
+                gas_prices_content = await response.content.read()
+                gas_prices_object = json.loads(gas_prices_content.decode("utf-8"))
+                safe_gas_price = gas_prices_object['result']['SafeGasPrice']
+                propose_gas_price = gas_prices_object['result']['ProposeGasPrice']
+                fast_gas_price = gas_prices_object['result']['FastGasPrice']
+
+                slow = (f'🐢 {safe_gas_price}|')
+                medium = (f'🚌 {propose_gas_price}|')
+                fast = (f'🚀 {fast_gas_price} (gwei)')
+            
+            return f'{slow} {medium} {fast}'
         
     async def get_Transaction_Time(self):
-        async with self.bot.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await self.bot.get_Etherscan_Key()}') as response:
-            
-            gas_prices_content = await response.content.read()
-            gas_prices_object = json.loads(gas_prices_content.decode("utf-8"))
-            fast_gas_price = gas_prices_object['result']['FastGasPrice']
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey={await self.get_Etherscan_Key()}') as response:
+                
+                gas_prices_content = await response.content.read()
+                gas_prices_object = json.loads(gas_prices_content.decode("utf-8"))
+                fast_gas_price = gas_prices_object['result']['FastGasPrice']
 
-            async with self.bot.session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice={fast_gas_price}&apikey={await self.bot.get_Etherscan_Key()}') as response:
-                transaction_time_content = await response.content.read()
-                transaction_time_object = json.loads(transaction_time_content.decode("utf-8"))
-                seconds = int(transaction_time_object['result']) % (24 * 3600)
-                hour = seconds // 3600
-                seconds %= 3600
-                minutes = seconds // 60
-                seconds %= 60
+                async with session.get(f'https://api.etherscan.io/api?module=gastracker&action=gasestimate&gasprice={fast_gas_price}&apikey={await self.get_Etherscan_Key()}') as response:
+                    transaction_time_content = await response.content.read()
+                    transaction_time_object = json.loads(transaction_time_content.decode("utf-8"))
+                    seconds = int(transaction_time_object['result']) % (24 * 3600)
+                    hour = seconds // 3600
+                    seconds %= 3600
+                    minutes = seconds // 60
+                    seconds %= 60
 
-                return "%d:%02d:%02d" % (hour, minutes, seconds)
+                    return "%d:%02d:%02d" % (hour, minutes, seconds)
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
         print('Test Cog Loaded')
         print('------')
         self.my_background_task.start()
+        self.get_gas_task.start()
 
     @app_commands.describe(
         first_value='The first value you want to add something to',
@@ -118,11 +147,32 @@ class Test(commands.Cog):
         message = await self.get_Transaction_Time()
         await interaction.followup.send(f"The fastest tx will send in {message}")
 
-    @tasks.loop(seconds=60)  # task runs every 60 seconds
+    @tasks.loop(seconds=1, reconnect=True)
+    async def get_gas_task(self) -> None:
+        try:
+            print("Getting gas prices...")
+            output = await self.get_gas_prices()
+            if output != self.bot.activity.name:
+                print("Changing bot activity...")
+                await self.bot.change_presence(activity = discord.Activity(type = discord.ActivityType.watching, name = f'{output}'))
+        except Exception as e:
+            print(f"Error with gas task: {e}")
+            pass
+
+    @get_gas_task.before_loop
+    async def before_get_gas_task(self):
+        await self.bot.wait_until_ready()
+        print("Initializing gas task...")       
+
+    @tasks.loop(seconds=60, reconnect=True)  # task runs every 60 seconds
     async def my_background_task(self):
-        channel = self.bot.get_channel(1034614887411892315)  # channel ID goes here
-        self.counter += 1
-        await channel.send(f"Task iterations since start: {self.counter}")
+        try:
+            channel = self.bot.get_channel(1034614887411892315)  # channel ID goes here
+            self.counter += 1
+            await channel.send(f"Task iterations since start: {self.counter}")
+        except Exception as e:
+            print(f"Error with test task: {e}")
+            pass
 
     @my_background_task.before_loop
     async def before_my_task(self):
