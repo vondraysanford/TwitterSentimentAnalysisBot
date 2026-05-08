@@ -1,10 +1,20 @@
+# Sensitive configuration
 Resources/Config.yaml
+
+# Model files
+Resources/model.pickle
+
+# Large data files
 Resources/Reviews.csv
-.DS_Store
 Resources/data_file.csv
 Resources/twitter_human_bots_dataset.csv
 Resources/twitter_dataset_expanded.csv
+
+#IDE/OS
+.DS_Store
 **/__pycache__
+
+#Key files
 Resources/privkey.cer
 Resources/pubkey.cer
 Resources/signature.sig
