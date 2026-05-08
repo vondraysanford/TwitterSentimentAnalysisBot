@@ -1,4 +1,4 @@
-# Twitter Sentiment Analysis & Bot Detection
+# 🐦 Twitter Sentiment Analysis & Bot Detection
 
 A Python-based NLP pipeline that analyzes tweet sentiment and detects bot accounts using machine learning, integrated with a Discord bot for real-time interaction.
 
