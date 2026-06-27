@@ -1,0 +1,13 @@
+# Configuration Template for Twitter Sentiment Analysis Bot
+# Copy this file to Config.yaml and fill in your actual API credentials
+# IMPORTANT: Never commit Config.yaml to version control!
+
+# Discord Bot Configuration
+# Get your token from: https://discord.com/developers/applications
+discord_api:
+  client: "YOUR_DISCORD_BOT_TOKEN_HERE"
+
+# Twitter API Configuration (v2)
+# Get your bearer token from: https://developer.twitter.com/en
+search_tweets_api:
+  bearer_token: "YOUR_TWITTER_BEARER_TOKEN_HERE"
