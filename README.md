@@ -361,7 +361,7 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fi
 
 For questions about this project or to discuss its implementation:
 - **GitHub:** [@vondraysanford](https://github.com/vondraysanford)
-- **LinkedIn:** [Add your profile URL]
+- **LinkedIn:** [https://www.linkedin.com/in/vondray-sanford/]
 
 ---
 
