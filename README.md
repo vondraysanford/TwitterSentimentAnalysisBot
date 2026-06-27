@@ -70,7 +70,16 @@ Discord Bot (discord.py)            ──►   User-facing interface
    pip install -r requirements.txt
    ```
 
-3. Configure API credentials — add your Twitter API keys and Discord bot token to your environment or config file.
+3. **Configure API credentials:**
+   - Copy the configuration template:
+     ```bash
+     cp Resources/Config.example.yaml Resources/Config.yaml
+     ```
+   - Edit `Resources/Config.yaml` and add your credentials:
+     - **Discord Bot Token** — Get from [Discord Developer Portal](https://discord.com/developers/applications)
+     - **Twitter API Bearer Token** — Get from [Twitter Developer Portal](https://developer.twitter.com/en)
+   
+   ⚠️ **Important:** Never commit `Resources/Config.yaml` to version control. It is already listed in `.gitignore` to prevent accidental credential leaks.
 
 ### Usage
 
