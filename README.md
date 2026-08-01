@@ -27,6 +27,12 @@ This end-to-end NLP system combines **sentiment analysis**, **bot detection**, a
 | **Discord Integration** | Real-time sentiment queries through interactive Discord commands |
 | **Data Pipeline** | Automated workflow: data collection → feature engineering → model training → deployment |
 
+### The Bot in Action
+
+<img alt="The Discord bot posting live results in a channel: each embed reports tweet sentiment plus a probability distribution over bot-likelihood categories for the tweet's author" src="docs/images/discord-screenshot.png" width="700">
+
+*Scheduled task output in Discord: each embed pairs the tweet's sentiment classification with the author's bot-probability breakdown from the XGBoost classifier.*
+
 ---
 
 ## 🏗️ Architecture
