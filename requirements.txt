@@ -1,0 +1,22 @@
+# Core runtime — Discord bot, Twitter API, sentiment analysis, model inference
+discord.py
+tweepy
+PyYAML
+cryptography
+requests
+numpy
+pandas
+python-dateutil
+pytz
+scikit-learn
+xgboost
+textblob
+matplotlib
+seaborn
+
+# Model training & notebooks (Scripts/GenerateModel.ipynb, Examples/*.ipynb)
+jupyter
+nltk
+plotly
+wordcloud
+tensorflow

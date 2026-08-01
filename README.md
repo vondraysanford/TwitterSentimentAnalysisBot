@@ -98,7 +98,11 @@ Evaluated on **35,874 Twitter accounts** (11,923 bots / 23,951 humans) with a 70
   <img alt="Feature importance of the deployed XGBoost model — the network metric (log followers times log following) dominates" src="docs/images/feature-importance-light.png" width="620">
 </picture>
 
-The engineered `network` feature (`log(followers) × log(following)`) carries the most signal by a wide margin — bots tend to follow aggressively while attracting few followers, and the log-product separates that pattern better than either raw count. Feature importances are read from the deployed `Resources/model.pickle`; curves and metrics reproduce the evaluation protocol in [`Scripts/GenerateModel.ipynb`](Scripts/GenerateModel.ipynb).
+The engineered `network` feature (`log(followers) × log(following)`) carries the most signal by a wide margin — bots tend to follow aggressively while attracting few followers, and the log-product separates that pattern better than either raw count. Feature importances are read from the deployed `Resources/model.pickle`; curves and metrics reproduce the evaluation protocol in [`Scripts/GenerateModel.ipynb`](Scripts/GenerateModel.ipynb). Regenerate all figures with:
+
+```bash
+python Scripts/GenerateEvalFigures.py
+```
 
 ---
 
@@ -273,6 +277,7 @@ TwitterSentimentAnalysisBot/
 ├── Scripts/
 │   ├── GenerateExpandedTwitterDataset.py  # Data collection & feature engineering
 │   ├── GenerateModel.ipynb                # Model training notebook
+│   ├── GenerateEvalFigures.py             # Regenerate README evaluation figures
 │   ├── SignPickle.py                      # Sign model with RSA
 │   ├── VerifyPickle.py                    # Verify model signature
 │   └── TweetSentimentAnalysis.py          # Inference pipeline
