@@ -70,6 +70,38 @@ This end-to-end NLP system combines **sentiment analysis**, **bot detection**, a
 
 ---
 
+## 📈 Model Performance
+
+Evaluated on **35,874 Twitter accounts** (11,923 bots / 23,951 humans) with a 70/30 held-out test split. Class imbalance is handled with XGBoost's `scale_pos_weight`, trading some precision for higher bot recall — preferable for a screening tool.
+
+| Metric | Held-out test (n = 10,763) |
+|--------|---------------------------|
+| **ROC AUC** | **0.890** |
+| Accuracy | 81.8% |
+| Precision (bot) | 71.6% |
+| Recall (bot) | 76.6% |
+| F1 Score | 74.0% |
+| 5-fold CV AUC | 0.891 ± 0.003 |
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/roc-curve-dark.png">
+  <img alt="ROC curves for each of 5 cross-validation folds with mean AUC 0.891" src="docs/images/roc-curve-light.png" width="620">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/confusion-matrix-dark.png">
+  <img alt="Confusion matrix on the held-out test set: 6,024 true humans, 2,785 true bots, 1,102 false positives, 852 false negatives" src="docs/images/confusion-matrix-light.png" width="500">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/feature-importance-dark.png">
+  <img alt="Feature importance of the deployed XGBoost model — the network metric (log followers times log following) dominates" src="docs/images/feature-importance-light.png" width="620">
+</picture>
+
+The engineered `network` feature (`log(followers) × log(following)`) carries the most signal by a wide margin — bots tend to follow aggressively while attracting few followers, and the log-product separates that pattern better than either raw count. Feature importances are read from the deployed `Resources/model.pickle`; curves and metrics reproduce the evaluation protocol in [`Scripts/GenerateModel.ipynb`](Scripts/GenerateModel.ipynb).
+
+---
+
 ## 🛠️ Tech Stack
 
 | Category | Technologies |
@@ -259,7 +291,7 @@ TwitterSentimentAnalysisBot/
 ## 🔬 Technical Highlights
 
 ### Machine Learning Pipeline
-- **Dataset:** 50K+ Amazon reviews + 5K+ Twitter accounts
+- **Dataset:** 50K+ Amazon reviews + 35K+ Twitter accounts
 - **Feature Engineering:** 13 computed features from API responses
 - **Model Selection:** Tested XGBoost, TensorFlow LSTM, Scikit-learn classifiers
 - **Hyperparameter Tuning:** Grid search for optimal XGBoost parameters
@@ -294,7 +326,7 @@ public_key.verify(
 | Dataset | Source | Purpose |
 |---------|--------|---------|
 | Amazon Fine Food Reviews (50K+) | [Kaggle](https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews) | Sentiment labels for model training |
-| Twitter Bots Accounts (5K+) | [Kaggle](https://www.kaggle.com/datasets/davidmartngutirrez/twitter-bots-accounts) | Bot detection training & validation |
+| Twitter Bots Accounts (35K+) | [Kaggle](https://www.kaggle.com/datasets/davidmartngutirrez/twitter-bots-accounts) | Bot detection training & validation |
 | Real Twitter Data | Twitter API v2 | Live inference on current tweets |
 
 ---
